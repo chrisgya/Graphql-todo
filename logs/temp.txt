@@ -1,0 +1,5 @@
+This is just an example of log file
+{"level":"info","message":"Winston has been init","timestamp":"2018-12-26T16:59:05.380Z"}
+{"level":"info","message":"Mongo Connected!","timestamp":"2018-12-26T16:59:05.420Z"}
+{"level":"info","message":"Express started on (http://localhost:3000/)","timestamp":"2018-12-26T16:59:05.430Z"}
+{"version":"1.0.0","level":"info","message":"graphql-todo startup sequence completed","timestamp":"2018-12-26T16:59:05.432Z"}

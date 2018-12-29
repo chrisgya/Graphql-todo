@@ -1,0 +1,5 @@
+apps:
+  - script    : 'app.js'
+    name      : 'Backend To-do Application'
+    node_args : '--inspect=0.0.0.0:5858'
+    
