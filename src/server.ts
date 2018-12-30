@@ -2,12 +2,17 @@
 /*
   Import modules
 */
+
 import bluebird = require("bluebird");
 import cors = require("cors");
 import express = require("express");
 import fs = require("fs");
 import mongoose = require("mongoose");
+// import { logger } from "shared/CustomeLogger";
+
 import { Config } from "./shared";
+const graphqlHTTP = require("express-graphql");
+import { schema } from "./schemas";
 global.Promise = bluebird;
 
 /**
@@ -25,7 +30,7 @@ export class TodoApp {
   public infoString: string;
   public port: any;
   private pkg = require("../package.json"); // information about package version
-  private winston: any = require("winston"); // for logging
+//  private winston: any = require("winston"); // for logging
   private app: any; // express server
 
   constructor(private portGiven) {
@@ -48,7 +53,7 @@ export class TodoApp {
     this.initEnv().then(() => {
       // logs/ Folder already
       // Initilatizing the winston as per documentation
-      this.initWinston();
+    //  this.initWinston();
 
       this.initServices().then(() => {
 
@@ -56,9 +61,10 @@ export class TodoApp {
         this.initExpress();
 
         // all done
-        this.winston.info(this.pkg.name + " startup sequence completed", {
-          version: this.pkg.version,
-        });
+        // this.winston.info(this.pkg.name + " startup sequence completed", {
+        //   version: this.pkg.version,
+        // });
+        console.log(`${this.pkg.name} - (version: ${this.pkg.version}) startup sequence completed`);
       });
     });
   }
@@ -81,51 +87,51 @@ export class TodoApp {
    * This Initilatizes the winston
    * @method initWinston @private
    */
-  private initWinston() {
-    // winston is configured as a private variable to the main app.ts
-    // it can then be spread to child modules or routeModules. This way only one winston object needs to be setup
-    this.winston.remove(this.winston.transports.Console);
-    this.winston.add(this.winston.transports.Console, {
-      colorize: true,
-      prettyPrint: true,
-      timestamp: true,
-    });
+  // private initWinston() {
+  //   // winston is configured as a private variable to the main app.ts
+  //   // it can then be spread to child modules or routeModules. This way only one winston object needs to be setup
+  //   this.winston.remove(this.winston.transports.Console);
+  //   this.winston.add(this.winston.transports.Console, {
+  //     colorize: true,
+  //     prettyPrint: true,
+  //     timestamp: true,
+  //   });
 
-    this.winston.add(this.winston.transports.File, {
-      name: "error",
-      level: "error",
-      filename: "logs/error.log",
-      maxsize: 10485760,
-      maxFiles: "10",
-      timestamp: true,
-    });
-    this.winston.add(this.winston.transports.File, {
-      name: "warn",
-      level: "warn",
-      filename: "logs/warn.log",
-      maxsize: 10485760,
-      maxFiles: "10",
-      timestamp: true,
-    });
-    this.winston.add(this.winston.transports.File, {
-      name: "info",
-      level: "info",
-      filename: "logs/info.log",
-      maxsize: 10485760,
-      maxFiles: "10",
-      timestamp: true,
-    });
-    this.winston.add(this.winston.transports.File, {
-      name: "verbose",
-      level: "verbose",
-      filename: "logs/verbose.log",
-      maxsize: 10485760,
-      maxFiles: "10",
-      timestamp: true,
-    });
+  //   this.winston.add(this.winston.transports.File, {
+  //     name: "error",
+  //     level: "error",
+  //     filename: "logs/error.log",
+  //     maxsize: 10485760,
+  //     maxFiles: "10",
+  //     timestamp: true,
+  //   });
+  //   this.winston.add(this.winston.transports.File, {
+  //     name: "warn",
+  //     level: "warn",
+  //     filename: "logs/warn.log",
+  //     maxsize: 10485760,
+  //     maxFiles: "10",
+  //     timestamp: true,
+  //   });
+  //   this.winston.add(this.winston.transports.File, {
+  //     name: "info",
+  //     level: "info",
+  //     filename: "logs/info.log",
+  //     maxsize: 10485760,
+  //     maxFiles: "10",
+  //     timestamp: true,
+  //   });
+  //   this.winston.add(this.winston.transports.File, {
+  //     name: "verbose",
+  //     level: "verbose",
+  //     filename: "logs/verbose.log",
+  //     maxsize: 10485760,
+  //     maxFiles: "10",
+  //     timestamp: true,
+  //   });
 
-    this.winston.info("Winston has been init");
-  }
+  //   this.winston.info("Winston has been init");
+  // }
 
   /**
    * This Initilatizes express server
@@ -141,7 +147,7 @@ export class TodoApp {
 
     // and start!
     this.app.listen(this.port);
-    this.winston.info("Express started on (http://localhost:" + this.port + "/)");
+    console.log("Express started on (http://localhost:" + this.port + "/)");
   }
 
   /**
@@ -157,7 +163,10 @@ export class TodoApp {
    * @method initAppRoutes @private
    */
   private initAppRoutes() {
-    // We will setup our graphql route here
+    this.app.use("/graphql", graphqlHTTP({
+      schema,
+      graphiql: true,
+    }));
   }
 
   /**
@@ -169,7 +178,7 @@ export class TodoApp {
     return new Promise<boolean>((resolve, reject) => {
       // connect to mongodb
       mongoose.connect(this.infoString, { useNewUrlParser: true }).then(() => {
-        this.winston.info("Mongo Connected!");
+        console.log("Mongo Connected!");
         resolve(true);
       });
     });
